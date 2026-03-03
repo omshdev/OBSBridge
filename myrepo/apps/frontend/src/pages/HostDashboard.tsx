@@ -7,6 +7,6 @@ export default function HostDashboard(){
     return <div>
         <h1>Host Dashboard</h1>
         <br />
-        <CreateStream wsId = {location.state.roomNumber}/>
+        <CreateStream roomId = {location.state.roomNumber} />
     </div>
 }

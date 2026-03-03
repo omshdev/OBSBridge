@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/ws": "^8.18.1",
+    "crypto": "^1.0.1",
     "mediasoup": "^3.19.16",
     "ws": "^8.19.0"
   }

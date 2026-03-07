@@ -46,15 +46,19 @@ export default function CreateStream({roomId}:any){
 
                     // all above events will be triggered when you 
                     // get video tracks and audio track from naviagtor mediadevices..
-                    const stream = await navigator.mediaDevices.getDisplayMedia({ video : true,audio : true});
-                    const track = stream.getVideoTracks()[0];
-                    await sendTransport.produce({ track});
+                    // const stream = await navigator.mediaDevices.getDisplayMedia({ video : true,audio : true});
+                    // const track = stream.getVideoTracks()[0];
+                    // await sendTransport.produce({ track});
                 }
             }else if(msg.type === "transportConnected"){
                     transportPendingCallback();
                 }else if(msg.type === "produced"){
                     producerConnectPendingCallback({ id : msg.producerId});
                 }
+                // else if(msg.type === "existingProducers"){
+                // //     const existingProducers = msg.producers;
+
+                // }
         // }
             }
             socket.addEventListener("message", handler);
@@ -63,9 +67,18 @@ export default function CreateStream({roomId}:any){
             }
     },[roomId])
 
-    function createStream(){
+    async function createStream(){
         console.log("function called on create stream");
-        socket.send(JSON.stringify({ type : "create-stream",direction :"send" , role : "host", roomId:roomId , name:"Om Sharma"}))
+        if(!sendTransport){
+            console.log("Transport not Created!");
+            return;
+        }
+        // get video tracks and audio track from naviagtor mediadevices..
+                    const stream = await navigator.mediaDevices.getDisplayMedia({ video : true,audio : true});
+                    const track = stream.getVideoTracks()[0];
+                    await sendTransport.produce({ track});
+
+        // socket.send(JSON.stringify({ type : "create-stream",direction :"send" , role : "host", roomId:roomId , name:"Om Sharma"}))
     }
 
     return <div>

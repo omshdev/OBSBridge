@@ -1,5 +1,5 @@
-import CreateStream from "./CreateStream"
-import JoinStream from "./JoinStream"
+import CreateStream from "../legacy/CreateStream"
+import JoinStream from "../legacy/JoinStream"
 
 export default function StreamLobby(action : string){
     if(action === "createStream"){

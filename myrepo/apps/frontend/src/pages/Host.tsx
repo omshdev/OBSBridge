@@ -1,18 +1,18 @@
 import { useState } from "react"
 import { ws } from "../sockets/sockets";
-import { useNavigate } from "react-router-dom";
+import {client} from "../lib/client"
 
 export default function Host(){
     const [name,setName] = useState("");
     const [roomNumber,setRoomNumber] = useState("");
     const [userId,setUserId] = useState("");
-    const navigate = useNavigate();
+
     function handleCreateRoom(){
         alert(`Room Created! for Room Number ${roomNumber} with Name : ${name}`);
         ws.send(JSON.stringify({ type : "client-join" , roomId : roomNumber,userId:userId}))
         console.log("message sent");
         console.log(roomNumber);
-        navigate("/hostDashboard",{state : {roomNumber:roomNumber}});
+
     }
     return <div>
         This is a Host Page..
@@ -30,5 +30,6 @@ export default function Host(){
         <br />
         
         <button onClick={handleCreateRoom}>Create Room</button>
+        <button onClick={()=>client.shareScreen()}>share screen</button>
     </div>
 }

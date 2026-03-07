@@ -28,7 +28,7 @@ wss.on('connection',function connection(ws : WebSocket){
         if(msg.type === "client-join"){
             const roomId = msg.roomId;
             const userId = msg.userId;
-
+            console.log("client join",roomId,userId);
             if(!rooms.has(roomId)){
                 const router = await worker.createRouter({mediaCodecs:[
                    {kind : 'video',mimeType:'video/VP8',clockRate:90000}
@@ -78,8 +78,9 @@ wss.on('connection',function connection(ws : WebSocket){
             ws.send(JSON.stringify({ type : "existingProducers",producers : existingProducers}));
             return;
         }else if(msg.type === "createWebRtcTransport"){
-            console.log(msg.type,msg.wsId);
-            const roomId = msg.wsId;
+            console.log(msg.type);
+
+            const roomId = (ws as any).roomId
             const direction = msg.direction;
 
             // get room 
@@ -93,8 +94,9 @@ wss.on('connection',function connection(ws : WebSocket){
             // creating webrtctransport on server side...
             const transport = await createWebRtcTransport(room);
             // get peer using peerId from ws object...
-            const peerId = (ws as any).peerId;
+            const peerId = (ws as any).peerId;            
             const peer = room?.peers.get(peerId);
+
             if(!peer){
                 ws.send(JSON.stringify({ msg : "Peer Not Found"}));
                 return;
@@ -103,12 +105,13 @@ wss.on('connection',function connection(ws : WebSocket){
             // setting created webRtcTransport to Peer..
             peer?.transports.set(transport.id,{transport,direction});
 
-            ws.send(JSON.stringify({ type : 'transport',peerTransport : {id : transport.id,iceCandidates : transport.iceCandidates,iceParameters : transport.iceParameters,dtlsParameters : transport.dtlsParameters}}));
+            ws.send(JSON.stringify({ type : 'transportCreated',direction,params: {id : transport.id,iceCandidates : transport.iceCandidates,iceParameters : transport.iceParameters,dtlsParameters : transport.dtlsParameters}}));
             return;
         }else if(msg.type === "connectTransport"){
-            console.log(msg.type,msg.wsId);
-            const roomId = msg.wsId;
+            console.log(msg.type);
+            const roomId = (ws as any).roomId
             const room = rooms.get(roomId);
+
              if(!room){
                 ws.send(JSON.stringify({ msg : "Room Not Found...!"}));
                 return;
@@ -129,8 +132,8 @@ wss.on('connection',function connection(ws : WebSocket){
             ws.send(JSON.stringify({ type : "transportConnected",transportId : transport?.id}));
             return;
         }else if(msg.type === "produce"){
-            console.log(msg.type,msg.wsId);
-            const roomId = msg.wsId;
+            console.log(msg.type);
+            const roomId = (ws as any).roomId
             const room = rooms.get(roomId);
             
             if(!room){
@@ -174,7 +177,7 @@ wss.on('connection',function connection(ws : WebSocket){
             }
             return;
         }else if(msg.type === "consume"){
-            const roomId = msg.wsId;
+            const roomId = (ws as any).roomId
             const producerId = msg.producerId;
             console.log(msg.type,msg.wsId);
             const rtpCapabilities = msg.rtpCapabilities;
@@ -221,14 +224,16 @@ wss.on('connection',function connection(ws : WebSocket){
             return;
 
         }else if(msg.type === "resumeConsumer"){
-            const roomId = msg.wsId;
+            const roomId = (ws as any).roomId
             console.log(msg.type,msg.wsId);
             const consumerId = msg.consumerId;
             const room = rooms.get(roomId);
-             if(!room){
+            
+            if(!room){
                 ws.send(JSON.stringify({ msg : "Room Not Found...!"}));
                 return;
             } 
+            
             const peerId = (ws as any).peerId;
             const peer = room.peers.get(peerId);
             const consumer = peer?.consumers.get(consumerId);

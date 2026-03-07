@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, X, Zap, Server, Cloud, Code, Users, Shield, Globe } from 'lucide-react';
+import { Check, X, Zap, Server, Cloud, Code, Shield, Globe } from 'lucide-react';
 
 interface Feature {
   text: string;
@@ -246,7 +246,7 @@ export default function PricingPage(){
       <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <Server className="w-5 h-5" />
             </div>
             <span className="text-xl font-bold">Deployment Options</span>
@@ -259,7 +259,7 @@ export default function PricingPage(){
       <section className="py-16 px-6 border-b border-gray-800">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl font-bold mb-4">
-            Open Source. <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Self-Hostable.</span>
+            Open Source. <span className="bg-linear-to-br from-blue-400 to-purple-400 bg-clip-text text-transparent">Self-Hostable.</span>
             <br />
             Always Free.
           </h1>
@@ -303,7 +303,7 @@ export default function PricingPage(){
                 key={index}
                 className={`relative p-8 rounded-2xl border ${
                   option.recommended 
-                    ? 'bg-gradient-to-b from-blue-500/10 to-purple-500/10 border-blue-500/50' 
+                    ? 'bg-linear-to-b from-blue-500/10 to-purple-500/10 border-blue-500/50' 
                     : 'bg-gray-900 border-gray-800'
                 } ${option.comingSoon ? 'opacity-75' : ''}`}
               >
@@ -318,7 +318,7 @@ export default function PricingPage(){
                 )}
 
                 <div className="text-center mb-6">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl flex items-center justify-center text-blue-400">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-xl flex items-center justify-center text-blue-400">
                     {option.icon}
                   </div>
                   <h3 className="text-2xl font-bold mb-2">{option.name}</h3>
@@ -333,9 +333,9 @@ export default function PricingPage(){
                   {option.features.map((feature, fIndex) => (
                     <li key={fIndex} className="flex items-start gap-3">
                       {feature.included ? (
-                        <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
+                        <Check className="w-5 h-5 text-green-400 shrink-0" />
                       ) : (
-                        <X className="w-5 h-5 text-gray-600 flex-shrink-0" />
+                        <X className="w-5 h-5 text-gray-600 shrink-0" />
                       )}
                       <span className={feature.included ? 'text-gray-300' : 'text-gray-600'}>
                         {feature.text}
@@ -348,7 +348,7 @@ export default function PricingPage(){
                   href={option.ctaLink}
                   className={`block w-full py-3 text-center rounded-lg font-semibold transition ${
                     option.recommended
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:shadow-blue-500/50'
+                      ? 'bg-linear-to-br from-blue-600 to-purple-600 hover:shadow-lg hover:shadow-blue-500/50'
                       : option.comingSoon
                       ? 'bg-gray-800 text-gray-400 cursor-not-allowed'
                       : 'bg-gray-800 hover:bg-gray-750'
@@ -419,7 +419,7 @@ export default function PricingPage(){
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b border-gray-800">
-                  <th className="text-left p-4 font-semibold text-gray-300 min-w-[200px]">Solution</th>
+                  <th className="text-left p-4 font-semibold text-gray-300 min-w-50">Solution</th>
                   <th className="p-4 font-semibold text-gray-300">Pricing</th>
                   <th className="p-4 font-semibold text-gray-300">Guest Limit</th>
                   <th className="p-4 font-semibold text-gray-300">OBS Native</th>
@@ -510,7 +510,7 @@ export default function PricingPage(){
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a 
               href="/docs" 
-              className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+              className="flex items-center gap-2 px-8 py-4 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
             >
               <Code className="w-5 h-5" />
               Deploy Now (Free)

@@ -114,10 +114,10 @@ export default function LandingPage() {
       <header className="fixed top-0 w-full bg-gray-950/80 backdrop-blur-lg border-b border-gray-800 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <Radio className="w-5 h-5" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               OBSBridge
             </span>
           </div>
@@ -145,7 +145,7 @@ export default function LandingPage() {
             <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight">
               Invite guests.
               <br />
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Stream with OBS.
               </span>
               <br />
@@ -161,7 +161,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a 
                 href="https://github.com/OmSharma42306/OBSBridge" 
-                className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                className="group flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
               >
                 <Github className="w-5 h-5" />
                 View on GitHub
@@ -179,7 +179,7 @@ export default function LandingPage() {
             {/* Flow Diagram */}
             <div className="mt-20 p-8 bg-gray-900 border border-gray-800 rounded-2xl">
               <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex-1 min-w-[120px] text-center">
+                <div className="flex-1 min-w-30 text-center">
                   <div className="w-16 h-16 mx-auto mb-3 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center justify-center">
                     <Video className="w-8 h-8 text-green-400" />
                   </div>
@@ -188,7 +188,7 @@ export default function LandingPage() {
                 
                 <div className="text-gray-600">→</div>
                 
-                <div className="flex-1 min-w-[120px] text-center">
+                <div className="flex-1 min-w-30 text-center">
                   <div className="w-16 h-16 mx-auto mb-3 bg-blue-500/10 border border-blue-500/30 rounded-lg flex items-center justify-center">
                     <Server className="w-8 h-8 text-blue-400" />
                   </div>
@@ -197,7 +197,7 @@ export default function LandingPage() {
                 
                 <div className="text-gray-600">→</div>
                 
-                <div className="flex-1 min-w-[120px] text-center">
+                <div className="flex-1 min-w-30 text-center">
                   <div className="w-16 h-16 mx-auto mb-3 bg-purple-500/10 border border-purple-500/30 rounded-lg flex items-center justify-center">
                     <Radio className="w-8 h-8 text-purple-400" />
                   </div>
@@ -206,7 +206,7 @@ export default function LandingPage() {
                 
                 <div className="text-gray-600">→</div>
                 
-                <div className="flex-1 min-w-[120px] text-center">
+                <div className="flex-1 min-w-30 text-center">
                   <div className="w-16 h-16 mx-auto mb-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-center">
                     <Video className="w-8 h-8 text-red-400" />
                   </div>
@@ -313,7 +313,7 @@ export default function LandingPage() {
                 onMouseEnter={() => setActiveFeature(index)}
                 className={`p-6 rounded-xl border transition-all cursor-pointer ${
                   activeFeature === index 
-                    ? 'bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/50' 
+                    ? 'bg-linear-to-br from-blue-500/10 to-purple-500/10 border-blue-500/50' 
                     : 'bg-gray-900 border-gray-800 hover:border-gray-700'
                 }`}
               >
@@ -341,7 +341,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {audiences.map((audience, index) => (
               <div key={index} className="p-8 bg-gray-900 border border-gray-800 rounded-xl hover:border-blue-500/50 transition-all text-center">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg flex items-center justify-center text-blue-400">
+                <div className="w-16 h-16 mx-auto mb-6 bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-lg flex items-center justify-center text-blue-400">
                   {audience.icon}
                 </div>
                 <h3 className="text-2xl font-bold mb-3">{audience.title}</h3>
@@ -415,7 +415,7 @@ services:
           <div className="mt-12">
             <a 
               href="https://github.com/OmSharma42306/OBSBridge" 
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
             >
               <Github className="w-5 h-5" />
               Star on GitHub
@@ -431,7 +431,7 @@ services:
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <Radio className="w-5 h-5" />
                 </div>
                 <span className="text-xl font-bold">OBSBridge</span>

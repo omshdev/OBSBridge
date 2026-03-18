@@ -15,7 +15,7 @@ export class MediasoupClient{
     producers = new Map();
     consumers = new Map();
 
-    constructor(socket : WebSocket){
+    constructor(socket : WebSocket,private mode: "participant" | "viewer" = "participant",private targetUserId?: string){
         this.socket = socket;
         socket.addEventListener("message",this.handleMessage)
     }
@@ -33,8 +33,6 @@ export class MediasoupClient{
                 break
             
             case "transportConnected":
-                // this.connectCallback?.()
-                // this.recvConnectCallback?.()
                 if(msg.transportId === this.sendTransport?.id){
                         this.connectCallback?.()
                 }
@@ -67,6 +65,10 @@ export class MediasoupClient{
             case "consumerCreated":
                 await this.createConsumer(msg.consumerParams)
                 break
+
+            case "foundProducer":
+                await this.consume(msg.producerId);
+                break;
         }
     }
 
@@ -75,11 +77,13 @@ export class MediasoupClient{
         this.device = new Device();
         await this.device.load({routerRtpCapabilities});
         
-        this.socket.send(JSON.stringify({ 
+        if(this.mode === "participant"){
+            this.socket.send(JSON.stringify({ 
             type : "createWebRtcTransport",
             direction : "send",
-        }));
-
+            }));
+        }
+        
         this.socket.send(JSON.stringify({
             type : "createWebRtcTransport",
             direction : "recv",
@@ -113,15 +117,28 @@ export class MediasoupClient{
             })
         }else{
             this.recvTransport = this.device!.createRecvTransport(msg.params);
-
+            console.log("i am here viewer....")
+            console.log("i below part running......")
             this.recvTransport.on("connect",({dtlsParameters}:any,callback:any)=>{
+                console.log("inside below part running......")
                 this.socket.send(JSON.stringify({
                     type : "connectTransport",
                     transportId : this.recvTransport.id,
                     dtlsParameters
                 }));
+                console.log("set callback......")
                 this.recvConnectCallback = callback;
-            })
+                console.log("out......")
+            });
+
+    if (this.mode === "viewer" && this.targetUserId) {
+        console.log("Requesting producer for", this.targetUserId);
+
+        this.socket.send(JSON.stringify({
+            type: "getProducer",
+            userId: this.targetUserId
+        }));
+    }
         };   
     }
 

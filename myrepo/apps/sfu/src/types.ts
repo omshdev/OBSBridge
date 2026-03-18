@@ -13,4 +13,6 @@ export type Room = {
     roomId : string;
     router : Router;
     peers : Map<string,Peer>
+    // userId → (producerId → Producer)
+    producersByUserId : Map<string,Map<string,Producer>>
 };

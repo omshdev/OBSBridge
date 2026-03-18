@@ -39,7 +39,8 @@ wss.on('connection',function connection(ws : WebSocket){
             rooms.set(roomId,{
                     roomId,
                     router,
-                    peers : new Map()
+                    peers : new Map(),
+                    producersByUserId : new Map()
                 })
             }
 
@@ -79,7 +80,6 @@ wss.on('connection',function connection(ws : WebSocket){
             return;
         }else if(msg.type === "createWebRtcTransport"){
             console.log(msg.type);
-
             const roomId = (ws as any).roomId
             const direction = msg.direction;
 
@@ -144,9 +144,11 @@ wss.on('connection',function connection(ws : WebSocket){
             const transportId = msg.transportId;
             const peerId = (ws as any).peerId;
             const peer = room.peers.get(peerId);
-            const entry = peer?.transports.get(transportId);
+            if(!peer) return;
 
-            const transports = peer?.transports;
+            const entry = peer.transports.get(transportId);
+
+            const transports = peer.transports;
             transports?.forEach((element:any) => {
                     console.log("dewfewewf",element)
             });
@@ -162,7 +164,16 @@ wss.on('connection',function connection(ws : WebSocket){
             });
 
             peer?.producers.set(producer.id,producer);
-        
+            
+            // new feat... setting producers with userId mapped to get producer without scanning O(n) loop..
+            let userProducers = room.producersByUserId.get(peer?.userId);
+            if(!userProducers){
+                userProducers = new Map();
+                room.producersByUserId.set(peer?.userId,userProducers);
+            }
+            userProducers.set(producer.id,producer);
+
+
             ws.send(JSON.stringify({ type : "produced",producerId : producer.id }));
             // Skip the sender and broadcast the 'newProducer' event to everyone else in the room.
             
@@ -203,7 +214,6 @@ wss.on('connection',function connection(ws : WebSocket){
             let consumerTransport;
 
             for(const transportEntry of transportEntries.values()){
-                // console.log("dewfewf transportEntry : ",transportEntry);
                 if(transportEntry.direction === "recv"){
                     console.log("finalhere");
                     consumerTransport = transportEntry.transport;
@@ -241,7 +251,59 @@ wss.on('connection',function connection(ws : WebSocket){
             await consumer?.requestKeyFrame();
             ws.send(JSON.stringify({ type : "consumerResumed",consumerId : consumer?.id}));
             return;
-        };
+        }else if(msg.type === "joinRoomViewer"){
+                // for obsviewer page section
+            console.log("i am at join room viewer")
+                // send router rtp capabilities...
+                const room = rooms.get(msg.roomId);
+                if(!room) return;
+                const peerId = randomUUID();
+
+                room.peers.set(peerId,{
+                    userId : msg.userId,
+                    socket : ws,
+                    transports : new Map(),
+                    producers : new Map(),
+                    consumers : new Map()
+                });
+
+                (ws as any).roomId = msg.roomId;
+                (ws as any).peerId = peerId;
+
+                ws.send(JSON.stringify({
+                    type : "rtpCapabilities",
+                    rtp : room?.router.rtpCapabilities
+                }))
+
+        }else if(msg.type === "getProducer"){
+            // get producer for current peers set by userId..
+            // send back producerId... with 
+            console.log("get producer called....")
+            const roomId = (ws as any).roomId;
+            const targetUserId = msg.userId;
+            const room = rooms.get(roomId);
+
+            if(!room) return;
+            // getting producers from mapped userId with producer to prevent O(n) lookup entries to O(1)..
+            const userProducers = room.producersByUserId.get(targetUserId);
+            
+            if(!userProducers || userProducers.size === 0){
+                console.log("no producers found!..");
+                return;
+            }
+
+            const producer = [...userProducers.values()][0];
+
+            if(!producer){
+                console.log("Producers not found!>>");
+                return;
+            } 
+            
+            ws.send(JSON.stringify({
+                    type : "foundProducer",
+                    producerId : producer.id
+                }));
+        }
     });
 
     ws.send(JSON.stringify({ msg : "success"}));

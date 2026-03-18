@@ -144,10 +144,22 @@ export class MediasoupClient{
 
     async shareScreen(){
         if(!this.sendTransport){
-    console.log("Send transport not ready yet")
-    return
-  }
+        console.log("Send transport not ready yet")
+        return
+        }
         const stream = await navigator.mediaDevices.getDisplayMedia({ video : true});
+        const track = stream.getVideoTracks()[0];
+        const producer = await this.sendTransport.produce({track});
+        this.producers.set(producer.id,producer);
+    }
+
+    // video sharing feature....
+    async shareVideo(){
+        if(!this.sendTransport){
+            console.log("Send transport not ready yet")
+            return
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({video : true});
         const track = stream.getVideoTracks()[0];
         const producer = await this.sendTransport.produce({track});
         this.producers.set(producer.id,producer);

@@ -31,5 +31,6 @@ export default function Host(){
         
         <button onClick={handleCreateRoom}>Create Room</button>
         <button onClick={()=>client.shareScreen()}>share screen</button>
+        <button onClick={()=>client.shareVideo()}>Share Video</button>
     </div>
 }

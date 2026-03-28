@@ -15,6 +15,19 @@ export class MediasoupClient{
     producers = new Map();
     consumers = new Map();
 
+    private listeners = new Map<string,Function[]>();
+    
+    on(event: string, cb: Function) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event)!.push(cb);
+    }
+
+    emit(event: string, data: any) {
+        this.listeners.get(event)?.forEach(cb => cb(data));
+    }
+
     constructor(socket : WebSocket,private mode: "participant" | "viewer" = "participant",private targetUserId?: string){
         this.socket = socket;
         socket.addEventListener("message",this.handleMessage)
@@ -68,6 +81,10 @@ export class MediasoupClient{
 
             case "foundProducer":
                 await this.consume(msg.producerId);
+                break;
+
+            case "participantUpdated":
+                this.emit("participantUpdated",msg.users);
                 break;
         }
     }

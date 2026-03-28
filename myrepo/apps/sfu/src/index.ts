@@ -1,6 +1,6 @@
 import * as mediasoup from "mediasoup";
 import { WebSocket,WebSocketServer} from "ws";
-import type {Room} from "./types.js"
+import type {Room, Slot} from "./types.js"
 import { randomUUID } from "crypto";
 import type { Worker } from "mediasoup/types";
 import os from "os";
@@ -28,6 +28,9 @@ wss.on('connection',function connection(ws : WebSocket){
         if(msg.type === "client-join"){
             const roomId = msg.roomId;
             const userId = msg.userId;
+            const name = msg.name;
+            const userType = msg.userType;
+
             console.log("client join",roomId,userId);
             if(!rooms.has(roomId)){
                 const router = await worker.createRouter({mediaCodecs:[
@@ -40,6 +43,7 @@ wss.on('connection',function connection(ws : WebSocket){
                     roomId,
                     router,
                     peers : new Map(),
+                    slots : new Map<string,Slot>(),
                     producersByUserId : new Map()
                 })
             }
@@ -47,7 +51,14 @@ wss.on('connection',function connection(ws : WebSocket){
             const room = rooms.get(roomId);
             const peerId = randomUUID();
             
-            room?.peers.set(peerId,{userId : userId, socket : ws,transports : new Map() , producers : new Map(),consumers : new Map() });
+            room?.peers.set(peerId,{userId : userId, socket : ws,transports : new Map() , producers : new Map(),consumers : new Map(),role: userType,name : name });
+            
+            // slots setup...
+            room?.slots.set("slot1",{slotId : "slot1",userId : null,producerId : null});
+            room?.slots.set("slot2",{slotId : "slot2",userId : null,producerId : null});
+            room?.slots.set("slot3",{slotId : "slot3",userId : null,producerId : null});
+
+            
 
             // setting roomId and PeerId on websocket object...
             (ws as any).roomId = roomId;
@@ -60,7 +71,9 @@ wss.on('connection',function connection(ws : WebSocket){
             }
             
             ws.send(JSON.stringify({ type : "rtpCapabilities" , rtp : room.router.rtpCapabilities}))
-                
+            
+            // notifying..host...
+            notifyHost(room);
             // issue : “Meeting already started → new consumer joins → cannot see existing screen share” 
             // fix : send existing producers list to client 
             const existingProducers = [];
@@ -264,7 +277,9 @@ wss.on('connection',function connection(ws : WebSocket){
                     socket : ws,
                     transports : new Map(),
                     producers : new Map(),
-                    consumers : new Map()
+                    consumers : new Map(),
+                    role : "participant",
+                    name : "viewer."
                 });
 
                 (ws as any).roomId = msg.roomId;
@@ -338,4 +353,27 @@ function getLocalIpAddress(){
   }
 
   return '127.0.0.1';
+}
+
+
+function notifyHost(room : Room){
+    const users = [];
+
+    for(const [,peer] of room.peers){
+        if(peer.role === "participant"){
+            users.push({
+                userId : peer.userId,
+                name : peer.name,
+            });
+        }        
+    }
+
+    for(const [,peer] of room.peers){
+        if(peer.role === "host"){
+            peer.socket.send(JSON.stringify({ 
+                type : "participantUpdated",
+                users : users
+            }))
+        }
+    }
 }

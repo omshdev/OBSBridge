@@ -86,6 +86,20 @@ export class MediasoupClient{
             case "participantUpdated":
                 this.emit("participantUpdated",msg.users);
                 break;
+            
+            case "totalSlots":
+                this.emit("totalSlots",msg.totalSlots);
+                break;
+            
+            case "slotUpdated":
+                if (this.mode === "viewer" && this.targetUserId) {
+                console.log("Requesting producer for", this.targetUserId);
+
+                this.socket.send(JSON.stringify({
+                    type: "getProducerBySlot",
+                    slotId: this.targetUserId
+                }));
+            }
         }
     }
 
@@ -152,8 +166,8 @@ export class MediasoupClient{
         console.log("Requesting producer for", this.targetUserId);
 
         this.socket.send(JSON.stringify({
-            type: "getProducer",
-            userId: this.targetUserId
+            type: "getProducerBySlot",
+            slotId: this.targetUserId
         }));
     }
         };   

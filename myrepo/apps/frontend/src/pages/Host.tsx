@@ -10,11 +10,21 @@ export default function Host() {
     const [roomCreated, setRoomCreated] = useState(false);
     const [copied, setCopied] = useState(false);
     const [participants,setParticipants] = useState<any>();
+    const [slots,setSlots] = useState([]);
+    const [selectedSlots,setSelectedSlots] = useState<Record<string,string>>({});// key = userId, value = slotID
     
     useEffect(()=>{
         client.on("participantUpdated",(users : any)=>{
             console.log("participants",users);
             setParticipants(users);
+            getSlots();
+        })
+
+        client.on("totalSlots",(totalSlots:any)=>{
+            setSlots(totalSlots);
+            
+            console.log("ee",totalSlots);
+            console.log("Total Slots",totalSlots);
         })
     },[])
     function handleCreateRoom() {
@@ -33,6 +43,13 @@ export default function Host() {
         setTimeout(() => setCopied(false), 2000);
     }
 
+    function getSlots(){
+        ws.send(JSON.stringify({ type : "getSlots"}));
+    }
+
+    function assignSlot(){
+
+    }
     return (
         <div className="min-h-screen bg-gray-950 text-gray-100">
             {/* Header */}
@@ -253,6 +270,44 @@ export default function Host() {
                     <span className="text-sm text-gray-400">
                         {p.hasVideo ? "🎥 Live" : "Idle"}
                     </span>
+                    <span className="text-xs text-green-400">
+                        {selectedSlots[p.userId]?`${window.location.origin}/obsviewer/${roomNumber}/${selectedSlots[p.userId]}`:"no slot assigned"}
+                    </span>
+
+                    <select value={selectedSlots[p.userId] || ""}
+                        onChange={(e)=>{
+                            const slotId = e.target.value;
+
+                            setSelectedSlots((prev)=>({
+                                ...prev,
+                                [p.userId]:slotId
+                            }))
+                        }}
+                    >
+                    {slots.map((slot:any)=>(
+                        <option key={slot.slotId} value={slot.slotId}>
+                            {slot.slotId}
+                        </option>
+                    ))}
+                    </select>
+
+                    <button
+                    onClick={()=>{
+                        const slotId = selectedSlots[p.userId];
+                        if(!slotId){
+                            alert("Select Slot first!");
+                            return;
+                        }
+
+                        const url =`${window.location.origin}/obsviewer/${roomNumber}/${slotId}`;
+                        console.log("getne",url);
+                        ws.send(JSON.stringify({
+                            type : "assignSlot",
+                            slotId : slotId,
+                            roomId : roomNumber,
+                            userId : p.userId
+                        }))
+                    }}>Assign Slot</button>
                 </div>
             </div>
         ))}

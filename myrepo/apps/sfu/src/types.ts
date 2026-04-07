@@ -4,11 +4,11 @@ import type { WebSocket } from "ws";
 export type Peer = {
     name : string;
     socket : WebSocket;
-    userId : string;
+    userId : string | null;
     transports : Map<string,{transport : Transport,direction : string}>
     producers : Map<string,Producer>
     consumers : Map<string,Consumer>
-    role : "host" | "participant" ;    
+    role : "host" | "participant" | "viewer" ;    
 };
 
 export type Room = {

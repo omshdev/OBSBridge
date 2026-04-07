@@ -46,6 +46,14 @@ wss.on('connection',function connection(ws : WebSocket){
                     slots : new Map<string,Slot>(),
                     producersByUserId : new Map()
                 })
+            
+            const room = rooms.get(roomId);
+            
+            // slots setup...
+            room?.slots.set("slot1",{slotId : "slot1",userId : null,producerId : null});
+            room?.slots.set("slot2",{slotId : "slot2",userId : null,producerId : null});
+            room?.slots.set("slot3",{slotId : "slot3",userId : null,producerId : null});
+
             }
 
             const room = rooms.get(roomId);
@@ -53,11 +61,6 @@ wss.on('connection',function connection(ws : WebSocket){
             
             room?.peers.set(peerId,{userId : userId, socket : ws,transports : new Map() , producers : new Map(),consumers : new Map(),role: userType,name : name });
             
-            // slots setup...
-            room?.slots.set("slot1",{slotId : "slot1",userId : null,producerId : null});
-            room?.slots.set("slot2",{slotId : "slot2",userId : null,producerId : null});
-            room?.slots.set("slot3",{slotId : "slot3",userId : null,producerId : null});
-
             
 
             // setting roomId and PeerId on websocket object...
@@ -156,7 +159,7 @@ wss.on('connection',function connection(ws : WebSocket){
             
             const transportId = msg.transportId;
             const peerId = (ws as any).peerId;
-            const peer = room.peers.get(peerId);
+            const peer : any= room.peers.get(peerId);
             if(!peer) return;
 
             const entry = peer.transports.get(transportId);
@@ -273,17 +276,18 @@ wss.on('connection',function connection(ws : WebSocket){
                 const peerId = randomUUID();
 
                 room.peers.set(peerId,{
-                    userId : msg.userId,
+                    userId : null,
                     socket : ws,
                     transports : new Map(),
                     producers : new Map(),
                     consumers : new Map(),
-                    role : "participant",
-                    name : "viewer."
+                    role : "viewer",
+                    name : `viewer-${msg.slotId}`
                 });
 
                 (ws as any).roomId = msg.roomId;
                 (ws as any).peerId = peerId;
+                (ws as any).slotId = msg.slotId;
 
                 ws.send(JSON.stringify({
                     type : "rtpCapabilities",
@@ -318,12 +322,81 @@ wss.on('connection',function connection(ws : WebSocket){
                     type : "foundProducer",
                     producerId : producer.id
                 }));
+        }else if(msg.type === "getProducerBySlot"){
+            const roomId = (ws as any).roomId;
+            const room = rooms.get(roomId);
+            if(!room) return;
+
+            const slot = room.slots.get(msg.slotId);
+            if(!slot || !slot.userId) return;
+            console.log(`Room ID : ${roomId} slot ID : ${slot.slotId} userID : ${slot.userId}`);
+
+            // for(const [,peer] of room.peers.entries()){
+            //     if(peer.userId === slot.userId){
+            //         for(const producer of peer.producers.values()){
+            //             producerId = producer.id;
+            //             break;
+            //         }
+
+                    
+            //     }
+            //     if(producerId) break;
+            // }   
+            
+            
+            // getting producers from mapped userId with producer to prevent O(n) lookup entries to O(1)..
+            const userProducers = room.producersByUserId.get(slot.userId);
+            
+            if(!userProducers || userProducers.size === 0){
+                console.log("no producers found!..");
+                return;
+            }
+
+            const producer = [...userProducers.values()][0];
+
+            if(!producer){
+                console.log("Producers not found!>>");
+                return;
+            }
+            if(producer){
+                ws.send(JSON.stringify({
+                    type : "foundProducer",
+                    producerId : producer.id
+                }));
+            }
+              
+        }else if(msg.type === "assignSlot"){
+            const roomId = (ws as any).roomId;
+            const room = rooms.get(roomId);
+            if(!room) return;
+            const slot = room?.slots.get(msg.slotId);
+            if(!slot) return;
+            slot.userId = msg.userId;
+            
+            for(const [,peer] of room?.peers.entries()){
+                peer.socket.send(JSON.stringify({
+                    type : "slotUpdated",
+                    slots : [...room.slots.values()]
+                }))
+            }
+
+
+        }else if(msg.type === "getSlots"){
+            const roomId = (ws as any).roomId;
+            const room = rooms.get(roomId);
+            const totalSlots : any = room?.slots;
+            console.log("total slots",totalSlots);
+            ws.send(JSON.stringify({
+                type : "totalSlots",
+                totalSlots:Array.from(totalSlots?.values())
+            }));
         }
     });
 
     ws.send(JSON.stringify({ msg : "success"}));
     ws.on('close',()=>{
         console.log("client disconnected..!");
+        
         return;
     })
 });

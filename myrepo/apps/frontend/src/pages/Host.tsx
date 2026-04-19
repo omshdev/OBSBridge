@@ -69,10 +69,7 @@ export default function Host() {
     function getSlots(){
         ws.send(JSON.stringify({ type : "getSlots"}));
     }
-
-    function assignSlot(){
-
-    }
+    
     return (
         <div className="min-h-screen bg-gray-950 text-gray-100">
             {/* Header */}

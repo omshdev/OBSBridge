@@ -182,6 +182,9 @@ export class MediasoupClient{
         const track = stream.getVideoTracks()[0];
         const producer = await this.sendTransport.produce({track});
         this.producers.set(producer.id,producer);
+        this.emit("localScreenStreamAdded",{
+            stream
+        });
     }
 
     // video sharing feature....
@@ -194,6 +197,9 @@ export class MediasoupClient{
         const track = stream.getVideoTracks()[0];
         const producer = await this.sendTransport.produce({track});
         this.producers.set(producer.id,producer);
+        this.emit("localVideoStreamAdded",{
+            stream
+        });
     }
 
     async consume(producerId : string){
@@ -216,8 +222,12 @@ export class MediasoupClient{
         video.playsInline = true
         video.muted = true
         
-        document.body.appendChild(video);
+        // document.body.appendChild(video);
+        const consumerId = consumer.id;
         this.consumers.set(consumer.id,consumer);
+        this.emit("remoteStreamAdded",{
+            consumerId,stream
+        })
 
         this.socket.send(JSON.stringify({
             type : "resumeConsumer",

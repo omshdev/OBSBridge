@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { ws } from "../sockets/sockets";
 import { client } from "../lib/client"
 import { Video, Monitor, Radio, Users, Copy, Check, ArrowRight } from 'lucide-react';
+import VideoGrid from "../components/VideoGrid";
 
 export default function Host() {
     const [name, setName] = useState("");
@@ -12,6 +13,11 @@ export default function Host() {
     const [participants,setParticipants] = useState<any>();
     const [slots,setSlots] = useState([]);
     const [selectedSlots,setSelectedSlots] = useState<Record<string,string>>({});// key = userId, value = slotID
+
+    const [remoteStreams,setRemoteStreams] = useState([]);
+    const [localVideoStream,setLocalVideoStream] = useState(null);
+    const [localScreenStream,setLocalScreenStream] = useState(null);
+
     
     useEffect(()=>{
         client.on("participantUpdated",(users : any)=>{
@@ -26,6 +32,23 @@ export default function Host() {
             console.log("ee",totalSlots);
             console.log("Total Slots",totalSlots);
         })
+
+        client.on("remoteStreamAdded",(data:any)=>{
+            setRemoteStreams((prev):any=>{
+                const exists = prev.find((x:any)=>x.consumerId===data.consumerId);
+                if(exists) return;
+                return [...prev,data]
+            })
+        });
+
+        client.on("localVideoStreamAdded",(data:any)=>{
+            setLocalVideoStream(data.stream);
+        });
+
+        client.on("localScreenStreamAdded",(data:any)=>{
+            setLocalScreenStream(data.stream);
+        });
+
     },[])
     function handleCreateRoom() {
         if (!name || !roomNumber || !userId) {
@@ -184,6 +207,16 @@ export default function Host() {
                                 Your streaming room is ready. Share the room ID with your guests.
                             </p>
                         </div>
+
+                        <div className="space-y-4 mt-8">
+                            <h2 className="text-2xl font-bold">Live Meeting Grid</h2>    
+
+    <VideoGrid
+      remoteStreams={remoteStreams}
+      localVideoStream={localVideoStream}
+      localScreenStream={localScreenStream}
+   />
+</div>
 
                         {/* Room Info Card */}
                         <div className="p-8 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-2xl">
